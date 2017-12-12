@@ -1,3 +1,12 @@
+buildscript {  
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+    }
+}
+apply plugin: 'io.codearte.nexus-staging'
 apply plugin: 'java-library'
 
 allprojects {
@@ -15,139 +24,78 @@ dependencies {
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
 
-['java', 'signing', 'maven-publish'].each {
-    apply plugin: it
-}
-// project information
-group = 'com.onepointsixtwo'
-version = '1.0.0'
 
-// javadoc.jar generation
-task javadocJar(type: Jar, dependsOn: javadoc) {
+
+task javadocJar(type: Jar) {
     classifier = 'javadoc'
-    from javadoc.destinationDir
+    from javadoc
 }
 
-// sources.jar generation
-task sourceJar(type: Jar) {
+task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
-// pom file name
-ext {
-    pomFilePath = "${project.projectDir}/tmp/pom.xml"
-    pomFile = file(pomFilePath)
-}
-
-// add configuration for pom signing
-configurations {
-    pom
-}
-
-// summarize artifacts
 artifacts {
-    archives jar
-    archives sourceJar
-    archives javadocJar
-    if (pomFile.exists()) {
-        pom pomFile
-    }
+    archives javadocJar, sourcesJar
 }
 
-// sign all artifacts
-task signJars(type: Sign, dependsOn: [jar, javadocJar, sourceJar]) {
-    sign configurations.archives
+allprojects {
+	apply plugin: 'signing'
+	apply plugin: 'maven'
+
+	// Signature of artifacts
+	signing {
+	    sign configurations.archives
+	}
+
+	// OSSRH publication
+	uploadArchives {
+	    repositories {
+	        mavenDeployer {
+	            // POM signature
+	            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+	            // Target repository
+	            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+	                authentication(userName: ossrhUser, password: ossrhPassword)
+	            }
+	            pom.project {
+	                name project.name
+	                description project.description
+	                packaging 'jar'
+	                url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor'
+	                groupId 'com.onepointsixtwo'
+	                version '1.0.0'
+
+	                scm {
+	                    connection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
+	                    developerConnection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
+	                    url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
+	                }
+
+	                licenses {
+	                    license {
+	                        name 'The MIT License (MIT)'
+	                        url 'http://opensource.org/licenses/MIT'
+	                        distribution 'repo'
+	                    }
+	                }
+
+	                developers {
+	                    developer {
+	                        id = 'onepointsixtwo'
+	                        name = 'John Kartupelis'
+	                        email = 'john.kartupelis@gmail.com'
+	                    }
+	                }
+	            }
+	        }
+	    }
+	}
 }
 
-// sign pom
-task signPom(type: Sign) {
-    sign configurations.pom
+nexusStaging {  
+    username = ossrhUser
+    password = ossrhPassword
+    packageGroup = 'com.onepointsixtwo'
 }
-
-// defining which tasks should be called
-if (project.ext.pomFile.exists()) {
-    task preparePublication(dependsOn: [signJars, signPom])
-} else {
-    task preparePublication(dependsOn: signJars)
-}
-
-// extract signatures and add classifier and extension to them
-def getSignatureFiles = {
-    def allFiles = project.tasks.signJars.signatureFiles.collect { it }
-    def signedSources = allFiles.find { it.name.contains('-sources') }
-    def signedJavadoc = allFiles.find { it.name.contains('-javadoc') }
-    def signedJar = (allFiles - [signedSources, signedJavadoc])[0]
-    return [
-            [archive: signedSources, classifier: 'sources', extension: 'jar.asc'],
-            [archive: signedJavadoc, classifier: 'javadoc', extension: 'jar.asc'],
-            [archive: signedJar, classifier: null, extension: 'jar.asc']
-    ]
-}
-
-// extract pom signature
-def getPomSignature = {
-    return project.tasks.signPom.signatureFiles.collect { it }[0]
-}
-
-
-publishing {
-    publications {
-        gpgJars(MavenPublication) {
-            getSignatureFiles().each { signature ->
-                artifact(signature.archive) {
-                    classifier = signature.classifier
-                    extension = signature.extension
-                }
-            }
-        }
-        if (project.ext.pomFile.exists()) {
-            gpgPom(MavenPublication) {
-                artifact(getPomSignature()) {
-                    classifier = null
-                    extension = 'pom.asc'
-                }
-            }
-        }
-        jar(MavenPublication) {
-            from components.java
-            pom.withXml {
-                asNode().children().last() + {
-                    resolveStrategy = DELEGATE_FIRST
-                    name 'dagger_viewmodel_processor'
-                    description 'Provides the processor to support injection of ViewModels'
-                    url 'https://github.com/onepointsixtwo/dagger_viewmodel_processor'
-                    scm {
-                        url 'https://github.com/onepointsixtwo/dagger_viewmodel_processor'
-                        connection 'https://github.com/onepointsixtwo/dagger_viewmodel_processor.git'
-                        developerConnection 'git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
-                    }
-                    licenses {
-                        license {
-                            name 'MIT'
-                            url 'https://opensource.org/licenses/MIT'
-                            distribution 'repo'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id 'onepointsixtwo'
-                            name 'John Kartupelis'
-                            email 'john.kartupelis@gmail.com'
-                        }
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        if (project.ext.pomFile.exists()) {
-            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-            credentials {
-                username = sonatypeUsername
-                password = sonatypePassword
-            }
-        }
-    }
-}
-
