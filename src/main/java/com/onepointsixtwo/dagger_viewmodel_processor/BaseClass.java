@@ -12,7 +12,7 @@ import javax.annotation.processing.Filer;
 
 public abstract class BaseClass {
 
-    protected TypeName factoryType = ClassName.bestGuess("android.arch.lifecycle.ViewModelProvider.Factory");
+    protected TypeName factoryType = ClassName.bestGuess("androidx.lifecycle.ViewModelProvider.Factory");
     protected TypeName javaObjectType = ClassName.bestGuess("java.lang.Object");
     protected TypeName hashmapClassName = ClassName.bestGuess("java.util.HashMap");
     protected TypeName classTypeName = ClassName.bestGuess("java.lang.Class");

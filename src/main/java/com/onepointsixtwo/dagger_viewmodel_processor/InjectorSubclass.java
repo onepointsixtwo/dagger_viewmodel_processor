@@ -42,13 +42,13 @@ public class InjectorSubclass extends BaseClass {
 
     private void createBasicClass() {
         injectorBuilder = TypeSpec.classBuilder(name)
-                            .superclass(baseInjectorClass.classType())
-                            .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                .superclass(baseInjectorClass.classType())
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
     }
 
     private void addInjectMethod() {
         TypeName viewModelType = ClassName.get(viewModelFieldInEnclosingClass.asType());
-        TypeName viewModelProviders = ClassName.bestGuess("android.arch.lifecycle.ViewModelProviders");
+        TypeName viewModelProviders = ClassName.bestGuess("androidx.lifecycle.ViewModelProviders");
 
         String methodName = "inject";
         String injecteeVariableName = "injectee";

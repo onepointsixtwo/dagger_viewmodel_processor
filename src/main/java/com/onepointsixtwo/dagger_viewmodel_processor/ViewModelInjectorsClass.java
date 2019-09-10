@@ -17,8 +17,8 @@ public class ViewModelInjectorsClass extends BaseClass {
     private TypeSpec.Builder typeBuilder;
     private BaseInjectorClass baseInjectorClass;
     private String mapVariableName = "map";
-    private TypeName supportActivityType = ClassName.bestGuess("android.support.v4.app.ActivityCompat");
-    private TypeName supportFragmentType = ClassName.bestGuess("android.support.v4.app.Fragment");
+    private TypeName supportActivityType = ClassName.bestGuess("androidx.core.app.ActivityCompat");
+    private TypeName supportFragmentType = ClassName.bestGuess("androidx.fragment.app.Fragment");
     private TypeName activityType = ClassName.bestGuess("android.app.Activity");
     private TypeName fragmentType = ClassName.bestGuess("android.app.Fragment");
 
