@@ -11,11 +11,8 @@ The pre-requisites for releasing this are as follows:
 
 ## Upload
 
-Simply run the command <insert command!>
+Simply run the command ./gradlew uploadArchives to upload the built jar to Nexus, and then run
+./gradlew closeAndReleaseRepository to actually close it and release it to maven central.
 
-
-## Release
-
-- Login to Sonatype and then go to "Staging Repositories"
-- Find the one matching 'onepointsixtwo' and check the version etc. is what you're expecting
-- Click close to deploy to maven central
+If you wish you can login to Sonatype between this two stages and look at Staging Repositories to
+check that the repository is created as expected.
