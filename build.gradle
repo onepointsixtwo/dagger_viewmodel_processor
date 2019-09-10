@@ -1,4 +1,4 @@
-buildscript {  
+buildscript {
     repositories {
         mavenCentral()
     }
@@ -18,12 +18,11 @@ allprojects {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.squareup:javapoet:1.9.0'
-    compile 'com.onepointsixtwo:dagger_viewmodel:1.0.1'
+    compile 'com.onepointsixtwo:dagger_viewmodel:1.0.2'
 }
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
-
 
 
 task javadocJar(type: Jar) {
@@ -41,57 +40,57 @@ artifacts {
 }
 
 allprojects {
-	apply plugin: 'signing'
-	apply plugin: 'maven'
+    apply plugin: 'signing'
+    apply plugin: 'maven'
 
-	// Signature of artifacts
-	signing {
-	    sign configurations.archives
-	}
+    // Signature of artifacts
+    signing {
+        sign configurations.archives
+    }
 
-	// OSSRH publication
-	uploadArchives {
-	    repositories {
-	        mavenDeployer {
-	            // POM signature
-	            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-	            // Target repository
-	            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-	                authentication(userName: ossrhUser, password: ossrhPassword)
-	            }
-	            pom.project {
-	                name project.name
-	                description project.description
-	                packaging 'jar'
-	                url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor'
-	                groupId 'com.onepointsixtwo'
-	                version '1.0.1'
+    // OSSRH publication
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                // POM signature
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                // Target repository
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUser, password: ossrhPassword)
+                }
+                pom.project {
+                    name project.name
+                    description project.description
+                    packaging 'jar'
+                    url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor'
+                    groupId 'com.onepointsixtwo'
+                    version '1.0.2'
 
-	                scm {
-	                    connection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
-	                    developerConnection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
-	                    url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
-	                }
+                    scm {
+                        connection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
+                        developerConnection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
+                        url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
+                    }
 
-	                licenses {
-	                    license {
-	                        name 'The MIT License (MIT)'
-	                        url 'http://opensource.org/licenses/MIT'
-	                        distribution 'repo'
-	                    }
-	                }
+                    licenses {
+                        license {
+                            name 'The MIT License (MIT)'
+                            url 'http://opensource.org/licenses/MIT'
+                            distribution 'repo'
+                        }
+                    }
 
-	                developers {
-	                    developer {
-	                        id = 'onepointsixtwo'
-	                        name = 'John Kartupelis'
-	                        email = 'john.kartupelis@gmail.com'
-	                    }
-	                }
-	            }
-	        }
-	    }
-	}
+                    developers {
+                        developer {
+                            id = 'onepointsixtwo'
+                            name = 'John Kartupelis'
+                            email = 'john.kartupelis@gmail.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 nexusStaging {
