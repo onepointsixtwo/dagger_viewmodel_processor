@@ -1,22 +1,20 @@
 package com.onepointsixtwo.dagger_viewmodel_processor
 
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
-
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.io.IOException
-
 import javax.annotation.processing.Filer
+import kotlin.reflect.KClass
 
 abstract class BaseClass {
 
     protected var factoryType: TypeName =
         ClassName.bestGuess("androidx.lifecycle.ViewModelProvider.Factory")
-    protected var javaObjectType: TypeName = ClassName.bestGuess("java.lang.Object")
+    protected var javaObjectType: TypeName = ClassName.bestGuess("kotlin.Any")
     protected var hashmapClassName: TypeName = ClassName.bestGuess("java.util.HashMap")
-    protected var classTypeName: TypeName = ClassName.bestGuess("kotlin.reflect.KClass")
+    protected var classTypeName: TypeName =
+        KClass::class.asTypeName().parameterizedBy(TypeVariableName("*"))
 
     protected abstract val typeBuilder: TypeSpec.Builder?
 

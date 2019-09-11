@@ -1,11 +1,7 @@
 package com.onepointsixtwo.dagger_viewmodel_processor
 
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.*
 
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -50,35 +46,23 @@ class InjectorSubclass(
         val factoryVariableName = "factory"
 
         val injectMethodBuilder = FunSpec.builder(methodName)
-            .addModifiers(KModifier.PUBLIC)
+            .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             .addParameter(injecteeVariableName, javaObjectType)
             .addParameter(factoryVariableName, factoryType)
             .addAnnotation(Override::class.java)
 
         if (type == InjectViewModelProcessor.Type.FRAGMENT_TYPE && useActivityScope) {
-            injectMethodBuilder.addStatement(
-                "((\$T)\$L).\$L = \$T.of(((\$T)\$L).getActivity(), \$L).get(\$T.class)",
+            injectMethodBuilder.addStatement("(injectee as %T).%N = %T.of(injectee.activity!!, factory).get(%T::class.java)",
                 enclosingClassType,
-                injecteeVariableName,
                 viewModelFieldInEnclosingClass.simpleName,
                 viewModelProviders,
-                enclosingClassType,
-                injecteeVariableName,
-                factoryVariableName,
-                viewModelType
-            )
+                viewModelType)
         } else {
-            injectMethodBuilder.addStatement(
-                "((\$T)\$L).\$L = \$T.of((\$T)\$L, \$L).get(\$T.class)",
+            injectMethodBuilder.addStatement("(injectee as %T).%N = %T.of(injectee, factory).get(%T::class.java)",
                 enclosingClassType,
-                injecteeVariableName,
                 viewModelFieldInEnclosingClass.simpleName,
                 viewModelProviders,
-                enclosingClassType,
-                injecteeVariableName,
-                factoryVariableName,
-                viewModelType
-            )
+                viewModelType)
         }
 
         val injectMethod = injectMethodBuilder.build()
@@ -87,7 +71,7 @@ class InjectorSubclass(
     }
 
     internal override fun classType(): TypeName {
-        return ClassName.bestGuess(name)
+        return TypeVariableName(name)
     }
 
     override fun fileName(): String {

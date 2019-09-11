@@ -1,11 +1,7 @@
 package com.onepointsixtwo.dagger_viewmodel_processor
 
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.*
 
 /**
  * Creator for the base injector class.
@@ -15,7 +11,6 @@ import com.squareup.kotlinpoet.TypeSpec
  * TODO: work out how to verify if a class is a subclass of fragment or activity for type-safety.
  */
 class BaseInjectorClass : BaseClass() {
-
     private val name = "BaseViewModelInjector"
     protected override var typeBuilder: TypeSpec.Builder? = null
         private set
@@ -39,7 +34,7 @@ class BaseInjectorClass : BaseClass() {
     }
 
     internal override fun classType(): TypeName {
-        return ClassName.bestGuess(name)
+        return TypeVariableName(name)
     }
 
     override fun fileName(): String {

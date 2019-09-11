@@ -3,15 +3,14 @@ package com.onepointsixtwo.dagger_viewmodel_processor
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-
-import java.util.HashMap
+import java.util.*
 
 class ViewModelInjectorsClass(
     classToInjectorTypeMapping: HashMap<TypeName, TypeName>,
     private val baseInjectorClass: BaseInjectorClass
 ) : BaseClass() {
 
-    protected override var typeBuilder: TypeSpec.Builder? = null
+    override var typeBuilder: TypeSpec.Builder? = null
         private set
     private val mapVariableName = "map"
     private val supportActivityType = ClassName.bestGuess("androidx.core.app.ActivityCompat")
@@ -43,7 +42,7 @@ class ViewModelInjectorsClass(
         //Create the hashmap
         val mapVariableName = "map"
         getInjectorsMethod.addStatement(
-            "val %N = mutableMapOf<%T<*>, %T>()",
+            "val %N = mutableMapOf<%T, %T>()",
             mapVariableName,
             classTypeName,
             baseInjectorClass.classType()
@@ -63,7 +62,8 @@ class ViewModelInjectorsClass(
         //Handle return statement to return created hashmap
         getInjectorsMethod.addStatement("return %N", mapVariableName)
 
-        val returnType = Map::class.asClassName().parameterizedBy(classTypeName, baseInjectorClass.classType())
+        val returnType =
+            Map::class.asClassName().parameterizedBy(classTypeName, baseInjectorClass.classType())
         getInjectorsMethod.returns(returnType)
 
         //Add the method
@@ -82,28 +82,9 @@ class ViewModelInjectorsClass(
         inject.addParameter(injecteeParamName, fragmentType)
             .addParameter(factoryParamName, factoryType)
 
-        //Gets the injector for the given class, checks it is not null, and if it's OK, uses it to inject the class.
-        inject.addStatement(
-            "\$T<\$T, \$T> \$L = getInjectorsForClass()",
-            hashmapClassName,
-            classTypeName,
-            baseInjectorClass.classType(),
-            mapVariableName
-        )
-        inject.addStatement(
-            "\$T \$L = \$L.get(\$L.getClass())",
-            baseInjectorClass.classType(),
-            injectorVariableName,
-            mapVariableName,
-            injecteeParamName
-        )
-        inject.addStatement(
-            "if (\$L != null) { \$L.inject(\$L, \$L); }",
-            injectorVariableName,
-            injectorVariableName,
-            injecteeParamName,
-            "factory"
-        )
+        inject.addStatement("val map = getInjectorsForClass()")
+        inject.addStatement("val injector = map.get(fragment::class)")
+        inject.addStatement("injector?.let { it.inject(fragment as Any, factory) }")
 
         typeBuilder!!.addFunction(inject.build())
     }
@@ -121,27 +102,9 @@ class ViewModelInjectorsClass(
             .addParameter(factoryParamName, factoryType)
 
         //Gets the injector for the given class, checks it is not null, and if it's OK, uses it to inject the class.
-        inject.addStatement(
-            "\$T<\$T, \$T> \$L = getInjectorsForClass()",
-            hashmapClassName,
-            classTypeName,
-            baseInjectorClass.classType(),
-            mapVariableName
-        )
-        inject.addStatement(
-            "\$T \$L = \$L.get(\$L.getClass())",
-            baseInjectorClass.classType(),
-            injectorVariableName,
-            mapVariableName,
-            injecteeParamName
-        )
-        inject.addStatement(
-            "if (\$L != null) { \$L.inject(\$L, \$L); }",
-            injectorVariableName,
-            injectorVariableName,
-            injecteeParamName,
-            "factory"
-        )
+        inject.addStatement("val map = getInjectorsForClass()")
+        inject.addStatement("val injector = map.get(activity::class)")
+        inject.addStatement("injector?.let { it.inject(activity as Any, factory) }")
 
         typeBuilder!!.addFunction(inject.build())
     }
@@ -152,34 +115,16 @@ class ViewModelInjectorsClass(
         val injectorVariableName = "injector"
 
         val inject = FunSpec.builder("inject")
-        inject.addModifiers(KModifier.PUBLIC, KModifier.COMPANION)
+        inject.addModifiers(KModifier.PUBLIC)
 
         //Input parameters of an object type and the factory to build view models
         inject.addParameter(injecteeParamName, supportFragmentType)
             .addParameter(factoryParamName, factoryType)
 
         //Gets the injector for the given class, checks it is not null, and if it's OK, uses it to inject the class.
-        inject.addStatement(
-            "\$T<\$T, \$T> \$L = getInjectorsForClass()",
-            hashmapClassName,
-            classTypeName,
-            baseInjectorClass.classType(),
-            mapVariableName
-        )
-        inject.addStatement(
-            "\$T \$L = \$L.get(\$L.getClass())",
-            baseInjectorClass.classType(),
-            injectorVariableName,
-            mapVariableName,
-            injecteeParamName
-        )
-        inject.addStatement(
-            "if (\$L != null) { \$L.inject(\$L, \$L); }",
-            injectorVariableName,
-            injectorVariableName,
-            injecteeParamName,
-            "factory"
-        )
+        inject.addStatement("val map = getInjectorsForClass()")
+        inject.addStatement("val injector = map.get(supportFragment::class)")
+        inject.addStatement("injector?.let { it.inject(supportFragment as Any, factory) }")
 
         typeBuilder!!.addFunction(inject.build())
     }
@@ -197,27 +142,9 @@ class ViewModelInjectorsClass(
             .addParameter(factoryParamName, factoryType)
 
         //Gets the injector for the given class, checks it is not null, and if it's OK, uses it to inject the class.
-        inject.addStatement(
-            "\$T<\$T, \$T> \$L = getInjectorsForClass()",
-            hashmapClassName,
-            classTypeName,
-            baseInjectorClass.classType(),
-            mapVariableName
-        )
-        inject.addStatement(
-            "\$T \$L = \$L.get(\$L.getClass())",
-            baseInjectorClass.classType(),
-            injectorVariableName,
-            mapVariableName,
-            injecteeParamName
-        )
-        inject.addStatement(
-            "if (\$L != null) { \$L.inject(\$L, \$L); }",
-            injectorVariableName,
-            injectorVariableName,
-            injecteeParamName,
-            "factory"
-        )
+        inject.addStatement("val map = getInjectorsForClass()")
+        inject.addStatement("val injector = map.get(supportActivity::class)")
+        inject.addStatement("injector?.let { it.inject(supportActivity as Any, factory) }")
 
         typeBuilder!!.addFunction(inject.build())
     }
