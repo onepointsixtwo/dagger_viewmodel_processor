@@ -78,7 +78,7 @@ if (project == rootProject) {
                         packaging 'jar'
                         url 'git@github.com:onepointsixtwo/dagger_viewmodel_processor'
                         groupId 'com.onepointsixtwo'
-                        version '1.0.2'
+                        version '2.0.0'
 
                         scm {
                             connection 'scm:git:git@github.com:onepointsixtwo/dagger_viewmodel_processor.git'
