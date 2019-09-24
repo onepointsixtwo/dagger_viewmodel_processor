@@ -28,7 +28,7 @@ dependencies {
     implementation "com.google.auto.service:auto-service:1.0-rc2"
     kapt "com.google.auto.service:auto-service:1.0-rc2"
     if (project == rootProject) {
-        implementation 'com.onepointsixtwo:dagger_viewmodel:1.0.1'
+        implementation 'com.onepointsixtwo:dagger_viewmodel:2.0.0'
     } else {
         implementation project(':dagger_viewmodel')
     }
